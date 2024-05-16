@@ -1,24 +1,28 @@
-//les structures
+
+// les structures
 typedef struct User User;
-struct User {
-char name[20];
-int numcompte;
-float solde;
-User *suiv;
+struct User
+{
+    char name[20];
+    int numcompte;
+    float solde;
+    User *suiv;
 };
 typedef struct Admin Admin;
-struct Admin {
- char name[20];
- char password[20];   
- Admin *suiv;
+struct Admin
+{
+    char name[20];
+    char password[20];
+    Admin *suiv;
 };
-int numcompte = 1;
+int num_compte = 1;
 // les fonctions
-//User *createAccount(User * user,char name[20],float solde);
-User *ajouterAccount(User * user,char name[20],float solde);
-void *modifyAccount(User * user,int numcompte);
-void *deleteAcount(User *user,int numcompte);
-void *afficherAccount(User *user);
-void *depotArgent(User *user,int numcompte);
-void *retirerArgent(User *user,int numcompte);
-void *transfererArgent(User *user,int numcompte1,int numcompte2);
+User *ajouterAccount(User *user, char name[20], float solde);
+void *modifyAccount(User *user, int numcompte);
+void *depotArgent(User *user, int numcompte);
+void *retirerArgent(User *user, int numcompte);
+void *transfererArgent(User *user, int numcompte1, int numcompte2);
+void *deleteAcount(User *user, int numcompte);
+void *afficherAccount(User *user, int numcompte);
+void *affichageAdmin(User *user);
+void backtohome();
