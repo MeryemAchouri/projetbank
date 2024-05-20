@@ -4,27 +4,77 @@
 #include "library.h"
 #include <string.h>
 
+void sauvegarderUtilisateurs(User *user) {
+    FILE *fichier = fopen("users.txt", "w");
+    if (fichier == NULL) {
+        printf("Erreur lors de l'ouverture du fichier\n");
+        exit(EXIT_FAILURE);
+    }
+
+    User *courant = user;
+    while (courant != NULL) {
+        fprintf(fichier, "%s %.2f %d\n", courant->name, courant->solde, courant->numcompte);
+        courant = courant->suiv;
+    }
+
+    fclose(fichier);
+}
 //***************************************//
-User *ajouterAccount(User *user, char name[20], float solde)
-{
+int getHighestAccountNumber() {
+    FILE *f = fopen("listedescompte.txt", "r");
+    int highestAccountNumber = 0;
+    if (f != NULL) {
+        int num;
+        char line[100];
+        while (fgets(line, sizeof(line), f)) {
+            if (sscanf(line, "Numéro de compte : %d", &num) == 1) {
+                if (num > highestAccountNumber) {
+                    highestAccountNumber = num;
+                }
+            }
+        }
+        fclose(f);
+    }
+    return highestAccountNumber;
+}
+
+User *ajouterAccount(User *user, char name[20], float solde) {
+    FILE *f;
+    f = fopen("listedescompte.txt", "a");
+    if (f == NULL) {
+        printf("Impossible d'ouvrir le fichier");
+        return user;
+    }
+
     User *Nouvuser = malloc(sizeof(User));
+    if (Nouvuser == NULL) {
+        printf("Allocation mémoire échouée");
+        return user;
+    }
+
     strcpy(Nouvuser->name, name);
     Nouvuser->solde = solde;
-    Nouvuser->numcompte = num_compte++;
+    Nouvuser->numcompte = getHighestAccountNumber() + 1; 
     Nouvuser->suiv = NULL;
 
-    if (user == NULL)
-    {
+    fprintf(f, "*****************\n");
+    fprintf(f, "Nom : %s\n",  Nouvuser->name);
+    fprintf(f, "Numéro de compte : %d\n",  Nouvuser->numcompte);
+    fprintf(f, "Solde : %.2f\n",  Nouvuser->solde);
+    fprintf(f, "*****************\n");
+
+    if (user == NULL) {
+        fclose(f);
         return Nouvuser;
     }
 
     User *courant = user;
-    while (courant->suiv != NULL)
-    {
+    while (courant->suiv != NULL) {
         courant = courant->suiv;
     }
     courant->suiv = Nouvuser;
 
+    fclose(f);
     return user;
 }
 //***************************************//
@@ -44,7 +94,6 @@ void *modifyAccount(User *user, int numcompte)
             printf("aucun compte avec le numero %d \n", numcompte);
         user = user->suiv;
     }
-    return user;
 }
 //***************************************//
 
@@ -106,69 +155,59 @@ void *transfererArgent(User *user, int numcompte1, int numcompte2)
 {
     float montant = 0;
 
-    if (user == NULL)
+    User *temp = user; 
+
+    while (temp != NULL)
+    {
+        if (temp->numcompte == numcompte1)
+        {
+            printf("Saisir le montant a transferer depuis le compte %d vers le compte %d : ", numcompte1, numcompte2);
+            scanf("%f", &montant);
+
+            if (montant > temp->solde)
+            {
+                printf("Le montant que vous essayez de transferer est superieur au solde du compte %d. Veuillez reessayer.\n", numcompte1);
+            }
+            temp->solde -= montant;
+            break;
+        }
+        temp = temp->suiv;
+    }
+
+    if (temp == NULL)
     {
         printf("Compte avec numero %d non trouve.\n", numcompte1);
-        return NULL;
     }
 
-    printf("Saisir le montant a transferer depuis le compte %d vers le compte %d : ", numcompte1, numcompte2);
-    scanf("%f", &montant);
-
-    if (montant >= user->solde)
+    temp = user; 
+    while (temp != NULL)
     {
-        printf("Le montant que vous essayez de transferer est superieur au solde du compte %d. Veuillez reessayer.\n", numcompte1);
-        return NULL;
-    }
-    while (user != NULL)
-    {
-        if (user->numcompte == numcompte1)
+        if (temp->numcompte == numcompte2)
         {
-            user->solde -= montant;
-            break;
+            temp->solde += montant;
+            printf("Transfert de %.2f DH du compte %d vers le compte %d effectue avec succes.\n", montant, numcompte1, numcompte2);
         }
-        user = user->suiv;
-    }
-    while (user != NULL)
-    {
-        if (user->numcompte == numcompte2)
-        {
-            user->solde += montant;
-            break;
-        }
-        user = user->suiv;
+        temp = temp->suiv;
     }
 
-    if (user == NULL)
-    {
-        printf("Compte avec numéro %d non trouve.\n", numcompte2);
-        return NULL;
-    }
-    user = user->suiv;
-
-    printf("Transfert de %.2f DH du compte %d vers le compte %d effectue avec succes.\n", montant, numcompte1, numcompte2);
+    printf("Compte avec numéro %d non trouve.\n", numcompte2);
 }
 
 //***************************************//
-void *deleteAcount(User *user, int numcompte)
-{
+User* deleteAccount(User *user, int numcompte) {
     User *current = user;
     User *prev = NULL;
-    while (current != NULL)
-    {
-        if (current->numcompte == numcompte)
-        {
-            if (prev == NULL)
-            {
+
+    while (current != NULL) {
+        if (current->numcompte == numcompte) {
+            if (prev == NULL) {
                 user = current->suiv;
-            }
-            else
-            {
+            } else {
                 prev->suiv = current->suiv;
             }
             free(current);
             printf("le compte avec le numero %d supprime avec succes.\n", numcompte);
-            return user;
+            return user; 
         }
         prev = current;
         current = current->suiv;
@@ -176,6 +215,7 @@ void *deleteAcount(User *user, int numcompte)
     printf("le compte avec le numero %d est introuvable.\n", numcompte);
     return user;
 }
+
 //*****************************************//
 void *afficherAccount(User *user, int numcompte)
 {

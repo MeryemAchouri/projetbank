@@ -1,3 +1,5 @@
+#ifndef AMM_H_INCLUDED
+#define AMM_H_INCLUDED
 
 // les structures
 typedef struct User User;
@@ -17,12 +19,14 @@ struct Admin
 };
 int num_compte = 1;
 // les fonctions
+void sauvegarderUtilisateurs(User *user);
 User *ajouterAccount(User *user, char name[20], float solde);
 void *modifyAccount(User *user, int numcompte);
 void *depotArgent(User *user, int numcompte);
 void *retirerArgent(User *user, int numcompte);
 void *transfererArgent(User *user, int numcompte1, int numcompte2);
-void *deleteAcount(User *user, int numcompte);
+User *deleteAccount(User *user, int numcompte);
 void *afficherAccount(User *user, int numcompte);
 void *affichageAdmin(User *user);
 void backtohome();
+#endif

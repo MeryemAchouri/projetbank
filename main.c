@@ -88,7 +88,7 @@ int main()
                 case 6:
                     printf("saisir votre numero du compte : \n");
                     scanf("%d", &num);
-                    deleteAcount(user, num);
+                    user=deleteAccount(user, num);
                     backtohome();
 
                     break;
@@ -165,3 +165,16 @@ int main()
     } while (type != 3);
     return 0;
 }
+    /* User *current = user;
+                    while (current!= NULL)
+                    {   fprintf(f, "*****************\n");
+                        fprintf(f, "Nom : %s\n", current->name);
+                        fprintf(f, "Numéro de compte : %d\n", current->numcompte);
+                        fprintf(f, "Solde : %.2f\n", current->solde);
+                        fprintf(f, "*****************\n");
+
+                        current = current->suiv;
+                    }
+                    */
+ 
+
